@@ -1,14 +1,32 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
-const app=express();
 const dotenv = require('dotenv').config();
+const userRoute = require('./routes/userRoute');
+const jobRoute = require('./routes/jobRoute');
+const verifyToken = require('./middleware/verifyTokens');
 
 
-mongoose.connect(process.env. MONGODB_URL).then(()=>{
+
+
+const app=express();
+app.use(express.json());
+
+
+mongoose.connect(process.env.MONGODB_URL).then(()=>{
     console.log('Connected to MongoDB');
 }).catch(err => {
     console.log('Failed to connect to MongoDB', err);
 });
+
+
+app.use('/user',userRoute);
+// app.use('/job',jobRoute); we will add middleware
+
+app.use('/job',verifyToken,jobRoute); // this ensures the verify token is satisfied then only it can go to job routes;
+
+
+
+
 
 app.get('/health', (req,res)=>{
     //res.send
